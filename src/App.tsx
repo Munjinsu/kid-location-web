@@ -37,9 +37,7 @@ function App() {
     ? children.filter((c) => c.id === selectedId)
     : children;
 
-  const getColorIndex = (id: string) =>
-    children.findIndex((c) => c.id === id);
-
+  
   return (
     <div style={{
       minHeight: "100vh",

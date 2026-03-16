@@ -52,7 +52,7 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
 
     waitForKakao(() => {
       if (!mapRef.current) return;
-      const center = new kakao.maps.LatLng(37.5665, 126.9780);
+      const center = new kakao.maps.LatLng(37.5665, 126.978);
       const map = new kakao.maps.Map(mapRef.current, { center, level: 5 });
       mapInstanceRef.current = map;
       updateMarkers(map);
@@ -60,8 +60,14 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
   }, []);
 
   useEffect(() => {
+    // ...카카오 초기화 코드
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (!mapInstanceRef.current) return;
     updateMarkers(mapInstanceRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [children]);
 
   const updateMarkers = (map: kakao.maps.Map) => {
@@ -80,7 +86,10 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
       const color = COLORS[index];
       const profileImg = PROFILE_IMAGES[index];
 
-      const position = new kakao.maps.LatLng(child.current.lat, child.current.lng);
+      const position = new kakao.maps.LatLng(
+        child.current.lat,
+        child.current.lng,
+      );
 
       // 둥근 프로필 이미지 마커
       const markerContent = `
@@ -108,11 +117,10 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
       customOverlay.setMap(map);
       customOverlaysRef.current.push(customOverlay);
 
-      
       // 경로선
       if (child.history) {
         const historyList = Object.values(child.history).sort(
-          (a, b) => a.timestamp - b.timestamp
+          (a, b) => a.timestamp - b.timestamp,
         );
         const path = [
           ...historyList.map((h) => new kakao.maps.LatLng(h.lat, h.lng)),
@@ -132,13 +140,11 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
     // 아이가 1명이면 해당 위치로 지도 이동
     if (children.length === 1) {
       map.setCenter(
-        new kakao.maps.LatLng(children[0].current.lat, children[0].current.lng)
+        new kakao.maps.LatLng(children[0].current.lat, children[0].current.lng),
       );
       map.setLevel(4);
     }
   };
 
-  return (
-    <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
-  );
+  return <div ref={mapRef} style={{ width: "100%", height: "100%" }} />;
 }
