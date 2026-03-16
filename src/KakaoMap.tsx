@@ -59,11 +59,12 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
     });
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // ...카카오 초기화 코드
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!mapInstanceRef.current) return;
     updateMarkers(mapInstanceRef.current);
