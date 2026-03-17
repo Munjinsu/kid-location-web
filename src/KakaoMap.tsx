@@ -10,10 +10,12 @@ export interface ChildLocation {
     timestamp: number;
   };
   history?: {
-    [key: string]: {
-      lat: number;
-      lng: number;
-      timestamp: number;
+    [date: string]: {  // 날짜 키 (예: 2026-03-17)
+      [key: string]: {
+        lat: number;
+        lng: number;
+        timestamp: number;
+      };
     };
   };
 }
@@ -57,18 +59,13 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
       mapInstanceRef.current = map;
       updateMarkers(map);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    // ...카카오 초기화 코드
-  }, []);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!mapInstanceRef.current) return;
     updateMarkers(mapInstanceRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [children]);
 
   const updateMarkers = (map: kakao.maps.Map) => {
@@ -89,7 +86,7 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
 
       const position = new kakao.maps.LatLng(
         child.current.lat,
-        child.current.lng,
+        child.current.lng
       );
 
       // 둥근 프로필 이미지 마커
@@ -118,30 +115,38 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
       customOverlay.setMap(map);
       customOverlaysRef.current.push(customOverlay);
 
-      // 경로선
+      // 날짜별 경로선
       if (child.history) {
-        const historyList = Object.values(child.history).sort(
-          (a, b) => a.timestamp - b.timestamp,
-        );
-        const path = [
-          ...historyList.map((h) => new kakao.maps.LatLng(h.lat, h.lng)),
-          position,
-        ];
-        const polyline = new kakao.maps.Polyline({
-          path,
-          strokeWeight: 4,
-          strokeColor: color,
-          strokeOpacity: 0.7,
-          map,
-        });
-        polylinesRef.current.push(polyline);
+        // 오늘 날짜
+        const today = new Date().toISOString().split("T")[0];
+        const todayHistory = child.history[today];
+
+        if (todayHistory) {
+          const historyList = Object.values(todayHistory).sort(
+            (a, b) => a.timestamp - b.timestamp
+          );
+
+          const path = [
+            ...historyList.map((h) => new kakao.maps.LatLng(h.lat, h.lng)),
+            position,
+          ];
+
+          const polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 4,
+            strokeColor: color,
+            strokeOpacity: 0.7,
+            map,
+          });
+          polylinesRef.current.push(polyline);
+        }
       }
     });
 
     // 아이가 1명이면 해당 위치로 지도 이동
-    if (children.length === 1) {
+    if (children.length >= 1) {
       map.setCenter(
-        new kakao.maps.LatLng(children[0].current.lat, children[0].current.lng),
+        new kakao.maps.LatLng(children[0].current.lat, children[0].current.lng)
       );
       map.setLevel(4);
     }
