@@ -22,18 +22,23 @@ export interface ChildLocation {
 
 interface Props {
   children: ChildLocation[];
-  colorIndexMap: { [id: string]: number };
 }
 
-const COLORS = ["#FF5733", "#33A1FF", "#28B463", "#F39C12"];
-const PROFILE_IMAGES = [
-  "/profiles/1.png",
-  "/profiles/2.png",
-  "/profiles/3.png",
-  "/profiles/4.png",
-];
+const PROFILE_IMAGES: { [key: string]: string } = {
+  child1: "/profiles/1.png",
+  child2: "/profiles/2.png",
+  child3: "/profiles/3.png",
+  child4: "/profiles/4.png",
+};
 
-export default function KakaoMap({ children, colorIndexMap }: Props) {
+const COLORS: { [key: string]: string } = {
+  child1: "#FF5733",
+  child2: "#33A1FF",
+  child3: "#28B463",
+  child4: "#F39C12",
+};
+
+export default function KakaoMap({ children }: Props) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<kakao.maps.Marker[]>([]);
@@ -80,9 +85,8 @@ export default function KakaoMap({ children, colorIndexMap }: Props) {
     customOverlaysRef.current = [];
 
     children.forEach((child) => {
-      const index = colorIndexMap[child.id];
-      const color = COLORS[index];
-      const profileImg = PROFILE_IMAGES[index];
+      const color = COLORS[child.id] ?? "#999999";
+      const profileImg = PROFILE_IMAGES[child.id] ?? "/profiles/1.png";
 
       const position = new kakao.maps.LatLng(
         child.current.lat,

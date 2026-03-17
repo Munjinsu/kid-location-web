@@ -4,15 +4,19 @@ import { db } from "./firebase";
 import { ref, onValue } from "firebase/database";
 import KakaoMap, { ChildLocation } from "./KakaoMap";
 
-const COLORS = ["#FF5733", "#33A1FF", "#28B463", "#F39C12"];
+const COLORS: { [key: string]: string } = {
+  child1: "#FF5733",
+  child2: "#33A1FF",
+  child3: "#28B463",
+  child4: "#F39C12",
+};
 
-// 아이별 프로필 이미지 (나중에 실제 사진으로 교체)
-const PROFILE_IMAGES = [
-  "/profiles/1.png",
-  "/profiles/2.png",
-  "/profiles/3.png",
-  "/profiles/4.png",
-];
+const PROFILE_IMAGES: { [key: string]: string } = {
+  child1: "/profiles/1.png",
+  child2: "/profiles/2.png",
+  child3: "/profiles/3.png",
+  child4: "/profiles/4.png",
+};
 
 function App() {
   const [children, setChildren] = useState<ChildLocation[]>([]);
@@ -22,7 +26,6 @@ function App() {
     const locationRef = ref(db, "locations");
     onValue(locationRef, (snapshot) => {
       const data = snapshot.val();
-      console.log('Firebase 데이터:', data); // 추가
       if (data) {
         const list = Object.entries(data).map(([id, value]) => ({
           id,
@@ -37,7 +40,6 @@ function App() {
     ? children.filter((c) => c.id === selectedId)
     : children;
 
-  
   return (
     <div style={{
       minHeight: "100vh",
@@ -64,7 +66,7 @@ function App() {
 
       <div style={{ padding: "16px", maxWidth: "960px", margin: "0 auto" }}>
 
-        {/* 아이 선택 카드 - 가로 스크롤 (모바일 대응) */}
+        {/* 아이 선택 카드 */}
         <div style={{
           display: "flex",
           gap: "10px",
@@ -103,8 +105,10 @@ function App() {
           </div>
 
           {/* 아이별 카드 */}
-          {children.map((child, index) => {
+          {children.map((child) => {
             const isSelected = selectedId === child.id;
+            const color = COLORS[child.id] ?? "#999";
+            const profileImg = PROFILE_IMAGES[child.id] ?? "/profiles/1.png";
             return (
               <div
                 key={child.id}
@@ -123,12 +127,12 @@ function App() {
                   height: "56px",
                   borderRadius: "50%",
                   overflow: "hidden",
-                  border: `3px solid ${isSelected ? COLORS[index] : "transparent"}`,
-                  boxShadow: isSelected ? `0 0 0 2px ${COLORS[index]}44` : "none",
+                  border: `3px solid ${isSelected ? color : "transparent"}`,
+                  boxShadow: isSelected ? `0 0 0 2px ${color}44` : "none",
                   transition: "all 0.2s",
                 }}>
                   <img
-                    src={PROFILE_IMAGES[index]}
+                    src={profileImg}
                     alt={child.name}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
@@ -136,7 +140,7 @@ function App() {
                 <span style={{
                   fontSize: "12px",
                   fontWeight: "600",
-                  color: isSelected ? COLORS[index] : "#555",
+                  color: isSelected ? color : "#555",
                 }}>
                   {child.name}
                 </span>
@@ -150,17 +154,11 @@ function App() {
           borderRadius: "16px",
           overflow: "hidden",
           boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
-          // 모바일은 높이 줄이기
           height: "calc(100vh - 220px)",
           minHeight: "300px",
         }}>
           {children.length > 0 ? (
-            <KakaoMap
-              children={visibleChildren}
-              colorIndexMap={Object.fromEntries(
-                children.map((c, i) => [c.id, i])
-              )}
-            />
+            <KakaoMap children={visibleChildren} />
           ) : (
             <div style={{
               height: "100%",
